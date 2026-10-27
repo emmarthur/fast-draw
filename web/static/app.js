@@ -1,3 +1,5 @@
+const SESSION_KEY = "fast-draw-v1";
+
 const phaseText = document.getElementById("phase-text");
 const actionBtn = document.getElementById("btn-action");
 const resultText = document.getElementById("result-text");
@@ -5,6 +7,8 @@ const errorEl = document.getElementById("error-text");
 
 /** @type {"idle"|"waiting"|"draw"|"result"} */
 let phase = "idle";
+/** @type {{ message: string, outcome: string } | null} */
+let lastResult = null;
 let drawAt = 0;
 let waitTimer = null;
 
@@ -14,11 +18,59 @@ function setError(message) {
 }
 
 function setResult(message, outcome) {
+  lastResult = { message, outcome };
   resultText.hidden = false;
   resultText.textContent = message;
   resultText.className = "result-text";
   if (outcome) resultText.classList.add(`is-${outcome}`);
+  persistState();
 }
+
+function getSessionPayload() {
+  if (phase === "waiting" || phase === "draw") {
+    clearTimers();
+    phase = "idle";
+    actionBtn.hidden = false;
+    actionBtn.disabled = false;
+    actionBtn.textContent = "Start round";
+    phaseText.textContent = "Press start when you are ready.";
+    phaseText.className = "phase-text";
+  }
+  return {
+    lastResult,
+    resultHidden: resultText.hidden,
+    phaseText: phaseText.textContent,
+    phaseClass: phaseText.className,
+    btnText: actionBtn.textContent,
+  };
+}
+
+function persistState() {
+  AppSession.save(SESSION_KEY, getSessionPayload());
+}
+
+function restoreState() {
+  const saved = AppSession.load(SESSION_KEY);
+  if (!saved) return;
+  clearTimers();
+  phase = "idle";
+  actionBtn.hidden = false;
+  actionBtn.disabled = false;
+  if (saved.lastResult) {
+    lastResult = saved.lastResult;
+    resultText.hidden = saved.resultHidden ?? false;
+    resultText.textContent = saved.lastResult.message;
+    resultText.className = "result-text";
+    if (saved.lastResult.outcome) {
+      resultText.classList.add(`is-${saved.lastResult.outcome}`);
+    }
+  }
+  if (saved.phaseText) phaseText.textContent = saved.phaseText;
+  if (saved.phaseClass) phaseText.className = saved.phaseClass;
+  if (saved.btnText) actionBtn.textContent = saved.btnText;
+}
+
+AppSession.wireHelpSave(SESSION_KEY, getSessionPayload);
 
 function clearTimers() {
   if (waitTimer) {
@@ -137,3 +189,5 @@ document.addEventListener("keydown", (event) => {
     onReact();
   }
 });
+
+restoreState();
