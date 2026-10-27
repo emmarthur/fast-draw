@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fast Draw</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&family=Rye&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="dust" aria-hidden="true"></div>
+
+    <main class="page">
+      <nav class="page-nav" aria-label="Page">
+        <a class="nav-link" href="/help">Help</a>
+      </nav>
+
+      <header class="hero">
+        <h1>Fast Draw</h1>
+        <p class="tagline">Wait for the signal — then react within three tenths of a second</p>
+      </header>
+
+      <section class="card arena" id="arena" aria-live="polite">
+        <p id="phase-text" class="phase-text">Press start when you are ready.</p>
+        <button type="button" id="btn-action" class="btn btn-primary">Start round</button>
+        <p id="result-text" class="result-text" hidden></p>
+        <p id="error-text" class="error" role="alert" hidden></p>
+      </section>
+
+      <p class="hint" id="keyboard-hint">During DRAW, press Space or click the button.</p>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
